@@ -3,10 +3,12 @@ import "./login.scss";
 import { useSignInMutation } from "../../context/api/userApi";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   const [username, setUsername] = useState("iskandar");
   const [password, setPassword] = useState("iskandar");
+  const [showPassword, setShowPassword] = useState(false);
   const [signIn, { isLoading, isError, data, isSuccess }] = useSignInMutation();
   let navigate = useNavigate();
 
@@ -42,13 +44,23 @@ const Login = () => {
         </div>
         <div className="form-group">
           <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <div className="password__input">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="newPassword"
+              placeholder="New Password"
+              value={password}
+              required
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              className="showButton"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
         </div>
         <button type="submit" disabled={isLoading}>
           {isLoading ? "Logging in..." : "Login"}
