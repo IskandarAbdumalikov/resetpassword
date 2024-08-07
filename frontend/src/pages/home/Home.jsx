@@ -1,17 +1,21 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./home.scss";
 import { useGetProfileQuery } from "../../context/api/userApi";
 import { useNavigate } from "react-router-dom";
+import EditModule from "../../components/editModule/EditModule";
+import ResetPassword from "../../components/resetPassword/ResetPassword";
 
 const Home = () => {
   const { data: profile, isLoading, isError } = useGetProfileQuery();
   const navigate = useNavigate();
+  const [edit, setEdit] = useState(null);
+  const [password, setPassword] = useState(false);
 
   useEffect(() => {
     if (isError) {
       navigate("/login");
     }
-  }, [isError, navigate]); 
+  }, [isError, navigate]);
 
   if (isLoading) return <div>Loading...</div>;
 
@@ -22,7 +26,10 @@ const Home = () => {
     <div className="profile container">
       <div className="profile-header">
         <h1>Profile</h1>
-        <button onClick={() => navigate("/login")}>Login</button>
+        <div>
+          <button onClick={() => navigate("/login")}>Login</button>
+          <button onClick={() => setEdit(profile?.payload)}>Edit</button>
+        </div>
       </div>
 
       <div className="profile-details">
@@ -44,7 +51,16 @@ const Home = () => {
         <p>
           <strong>Budget:</strong> ${budget}
         </p>
+        <button className="reset-btn" onClick={() => setPassword(true)}>Reset password</button>
       </div>
+      {edit && <EditModule data={edit} setEdit={setEdit} />}
+      {edit && <div onClick={() => setEdit(null)} className="overlay"></div>}
+      {password ? <ResetPassword handleClose={setPassword} /> : <></>}
+      {password ? (
+        <div onClick={() => setPassword(false)} className="overlay"></div>
+      ) : (
+        <></>
+      )}
     </div>
   );
 };

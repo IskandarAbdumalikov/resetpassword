@@ -9,35 +9,12 @@ export const userApi = api.injectEndpoints({
       }),
       providesTags: ["User"],
     }),
-    getUsersBySearch: build.query({
-      query: (params) => ({
-        url: "/users/search",
-        params,
-      }),
-      providesTags: ["User"],
-    }),
     getProfile: build.query({
       query: (params) => ({
         url: "/profile",
         params,
       }),
       providesTags: ["User"],
-    }),
-    updateProfile: build.mutation({
-      query: ({ id, body }) => ({
-        url: `/profile/${id}`,
-        method: "PATCH",
-        body,
-      }),
-      invalidatesTags: ["User"],
-    }),
-    resetPassword: build.mutation({
-      query: (body) => ({
-        url: `/password`,
-        method: "PATCH",
-        body,
-      }),
-      invalidatesTags: ["User"],
     }),
     signIn: build.mutation({
       query: (body) => ({
@@ -63,7 +40,4 @@ export const {
   useGetUsersQuery,
   useRegisterUserMutation,
   useSignInMutation,
-  useGetUsersBySearchQuery,
-  useUpdateProfileMutation,
-  useResetPasswordMutation
 } = userApi;

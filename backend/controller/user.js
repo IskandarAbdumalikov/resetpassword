@@ -182,8 +182,8 @@ class UsersController {
   }
   async resetPassword(req, res) {
     try {
-      const { oldPassword, newPassword } = req.body;
-      const { id } = req.user;
+      const { password, newPassword } = req.body;
+      const id = req.user._id;
 
       const user = await Users.findById(id);
       if (!user) {
@@ -194,7 +194,7 @@ class UsersController {
         });
       }
 
-      const isMatch = await bcrypt.compare(oldPassword, user.password);
+      const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return res.status(400).json({
           msg: "Old password is incorrect",
@@ -204,9 +204,7 @@ class UsersController {
       }
 
       const salt = await bcrypt.genSalt(10);
-      const hashedNewPassword = await bcrypt.hash(newPassword, salt);
-
-      user.password = hashedNewPassword;
+      user.password = await bcrypt.hash(newPassword, salt);
       await user.save();
 
       res.status(200).json({
@@ -217,6 +215,52 @@ class UsersController {
     } catch {
       res.status(500).json({
         msg: "Something went wrong",
+        variant: "error",
+        payload: null,
+      });
+    }
+  }
+
+  async practice(req, res) {
+    const data = await Users.exists({ username: req.body.username });
+    console.log(data);
+    res.json("test uchun");
+  }
+
+  async getUserSearch(req, res) {
+    try {
+      let { value = "", limit = 3 } = req.query;
+      const text = value.trim();
+
+      if (!text) {
+        return res.status(400).json({
+          msg: "Please enter a valid text",
+          variant: "error",
+          payload: null,
+        });
+      }
+      const users = await Users.find({
+        $or: [
+          { fname: { $regex: text, $options: "i" } },
+          { username: { $regex: text, $options: "i" } },
+        ],
+      });
+
+      if (!users.length) {
+        return res.status(400).json({
+          msg: "Users not found",
+          variant: "error",
+          payload: null,
+        });
+      }
+      res.status(200).json({
+        msg: "Users fetched successfully",
+        variant: "success",
+        payload: users,
+      });
+    } catch (err) {
+      res.status(500).json({
+        msg: err.message,
         variant: "error",
         payload: null,
       });
