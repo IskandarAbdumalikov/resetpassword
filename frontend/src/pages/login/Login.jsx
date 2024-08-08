@@ -4,6 +4,8 @@ import { useSignInMutation } from "../../context/api/userApi";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { setToken } from "../../context/slices/authSlice";
 
 const Login = () => {
   const [username, setUsername] = useState("iskandar");
@@ -11,12 +13,20 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [signIn, { isLoading, isError, data, isSuccess }] = useSignInMutation();
   let navigate = useNavigate();
+  let dispatch = useDispatch();
+
+  let isLogin = useSelector((state) => state.auth.token);
+  useEffect(() => {
+    if (isLogin) {
+      navigate("/");
+    }
+  }, [isLogin]);
 
   useEffect(() => {
     if (isSuccess) {
       toast.success("Login successful!");
       navigate("/");
-      localStorage.setItem("x-auth-token", data.payload);
+      dispatch(setToken(data?.payload));
     }
     if (isError) {
       toast.error("Invalid username or password");
